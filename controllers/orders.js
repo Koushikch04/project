@@ -29,13 +29,13 @@ exports.ordersSortSearchAndFilters = async (req, res) => {
         .find()
         .sort({ createdAt: 1 })
         .populate("userId")
-        .populate("prodId");
+        .populate("prodId").lean().exec();
     } else {
       allOrders = await orderModel
         .find()
         .sort({ createdAt: -1 })
         .populate("userId")
-        .populate("prodId");
+        .populate("prodId").lean().exec();
     }
     if (searchText && searchText != "" && searchText.length > 0) {
       allOrders = allOrders.filter((order) => {
