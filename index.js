@@ -21,6 +21,7 @@ const profilesRoutes = require("./routes/profiles/profilesRoutes");
 const messageContact = require('./routes/others/message');
 const counts = require("./models/counts")
 const Orders = require('./models/orders')
+const users = require("./models/userSchema")
 const employeeSchema = require('./models/employee')
 app.use(session({
   secret: "some secret",
@@ -46,16 +47,31 @@ app.use(express.static("client"));
 //Runs on every url but works only when specified path is matched in the url 
 app.use("/auth", authRouter);
 app.get("/", async (req, res) => {
+  console.log("Home page request made");
   let notlogin = true
   const count = await counts.findOne({ countId: "message" });
   const views = count.countViews + 1;
   await counts.findOneAndUpdate({ countId: "message" }, { countViews: views });
-  console.log(req.session.userName);
+  let cartNames = []
+  let cartSrc = []
+  let cartPrices = []
+  let cartType = []
   if (req.session.userName) {
     notlogin = false
+    const cartItems = await users.findOne({ mailId: req.session.userMail }, { userCart: 1 })
+    cartItems.userCart.forEach(element => {
+      cartNames.push(element.productDetails.title)
+      cartPrices.push(element.productDetails.price)
+      cartSrc.push(element.productDetails.src)
+      cartType.push(element.productType)
+    })
+    console.log("home page");
+    res.render("./HTML/LandingPages/mainLandingPage.ejs", { error: false, notlogin, cartNames, cartPrices, cartSrc, cartType });
   }
-  console.log(notlogin);
-  res.render("./HTML/LandingPages/mainLandingPage.ejs", { error: false, notlogin });
+  else {
+    console.log(notlogin);
+    res.render("./HTML/LandingPages/mainLandingPage.ejs", { error: false, notlogin, cartNames, cartPrices, cartSrc, cartType });
+  }
 });
 
 app.use("/profile", profilesRoutes);

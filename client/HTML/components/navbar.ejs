@@ -56,7 +56,7 @@
                     <!-- <div class="fas fa-search" id="search-btn"></div>
                     <div class="fas fa-shopping-cart" id="cart-btn"></div>
                     <div class="fas fa-user" id="login-btn"></div> -->
-                    <a href="#"><i class="fa-solid fa-cart-shopping" id="cart-btn"></i></a>
+                    <a id="cart-btn"><i class="fa-solid fa-cart-shopping"></i></a>
                 </div>
 
                 
@@ -66,6 +66,12 @@
             <!-- <input type="text" name="text" id=""> -->
             <button type="submit" class="btn">Purchase</button>
         </form>
+
+        <p class="cart-Names" style="display: none;"> <%= cartNames.join(","); %></p>
+        <p class="cart-Prices" style="display: none;"> <%= cartPrices.join(","); %></p>
+        <p class="cart-src" style="display: none;"> <%= cartSrc.join(","); %></p>
+        <p class="cart-Type" style="display: none;"> <%= cartType.join(","); %></p>
+      
                 <% }  else { %>
                     <div class="components-navbar-enter__item components-navbar-profile">
                         <!-- <a href="#"><i class="fa-solid fa-cart-shopping" id="cart-btn" style="font-size: 3rem;"></i></a>

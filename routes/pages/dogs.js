@@ -27,7 +27,12 @@ router.get("/", async (req, res) => {
     if (req.session.userName) {
         notlogin = false
     }
-    const pets = await petSchema.find({ "productType": "pet","petType" : "dogs" })
+    let admin = false
+    if (req.session.admin) {
+        admin = true
+    }
+
+    const pets = await petSchema.find({ "productType": "pet", "petType": "dogs" })
     console.log("in dogs page");
     const cartItems = await users.findOne({ mailId: req.session.userMail }, { userCart: 1 })
     let pricesData = []
@@ -44,12 +49,12 @@ router.get("/", async (req, res) => {
     // console.log(typeof (cartItems));
     if (!notlogin) {
         cartItems.userCart.forEach(element => {
-            if (element.productType === 'pets') {
-                console.log(element.productDetails);
-                cartNames.push(element.productDetails.title)
-                cartPrices.push(element.productDetails.price)
-                cartSrc.push(element.productDetails.src)
-            }
+            // if (element.productType === 'pets') {
+            console.log(element.productDetails);
+            cartNames.push(element.productDetails.title)
+            cartPrices.push(element.productDetails.price)
+            cartSrc.push(element.productDetails.src)
+            // }
         })
     }
     res.render("./HTML/LandingPages/dogLandingPage.ejs", { notlogin, pricesData, productNamesData, imgsrcData, cartNames, cartPrices, cartSrc })
@@ -65,6 +70,7 @@ router.post("/product", async (req, res) => {
         await users.updateOne({ mailId: req.session.userMail }, { $push: { userCart: { productType: "pets", productDetails: { title: req.body.title, price: req.body.price, src: req.body.imagSource, quantity: 0 } } } },)
     }
     else if (req.body.type === "remove") {
+        console.log("remove request made");
         console.log(req.body);
         await users.updateOne({ mailId: req.session.userMail }, { $pop: { userCart: { productType: "pets", productDetails: { title: req.body.title, price: req.body.price, src: req.body.imagSource, quantity: 0 } } } },)
     }

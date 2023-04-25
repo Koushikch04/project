@@ -1,9 +1,5 @@
 const express = require("express");
-const mongoose = require("mongoose")
-const fs = require("fs")
-const path = require("path")
-const connectionString = "mongodb+srv://petparadise:Petparadise@cluster0.zuw8xzo.mongodb.net/test"
-
+const users = require("../../models/userSchema")
 const productSchema = require("../../models/productSchema");
 const reviewSchema = require("../../models/review");
 // const { nextTick } = require("process");
@@ -46,9 +42,19 @@ const reviewDetails = [
 
 // reviewSchema.insertMany(reviewDetails);
 
-router.post("/", (req, res) => {
-
+router.post("/product", async (req, res) => {
+    console.log("request made");
+    console.log(req.body);
+    if (req.body.type === "add") {
+        await users.updateOne({ mailId: req.session.userMail }, { $push: { userCart: { productType: "Food", productDetails: { title: req.body.title, price: req.body.price, src: req.body.imagSource, quantity: 0 } } } },)
+    }
+    else if (req.body.type === "remove") {
+        console.log(req.body);
+        await users.updateOne({ mailId: req.session.userMail }, { $pop: { userCart: { productType: "Food", productDetails: { title: req.body.title, price: req.body.price, src: req.body.imagSource, quantity: 0 } } } },)
+    }
+    res.send([1, 2, 3])
 })
+
 
 const regex = /^[a-zA-Z\s]*$/;
 
@@ -57,12 +63,27 @@ router.get("/", async (req, res) => {
     if (req.session.userName) {
         notlogin = false
     }
+    let cartNames = []
+    let cartSrc = []
+    let cartPrices = []
+    let cartType = []
+    const cartItems = await users.findOne({ mailId: req.session.userMail }, { userCart: 1 })
     let pets = await productSchema.find({ "productType": "food" }, { productType: 0, "productDetails._id": 0, _id: 0, __v: 0 })
     sort = { 'timestamp': 1 }
     let rev = await reviewSchema.find({}).sort({ createdAt: "descending" }).limit(6);
     pets = JSON.stringify(pets)
     rev = JSON.stringify(rev)
-    res.render("./HTML/LandingPages/petfoodLandingPage.ejs", { notlogin, pets, rev })
+    if (!notlogin) {
+        cartItems.userCart.forEach(element => {
+            console.log(element.productDetails);
+            cartNames.push(element.productDetails.title)
+            cartPrices.push(element.productDetails.price)
+            cartSrc.push(element.productDetails.src)
+            cartType.push(element.productType)
+        })
+    }
+    console.log(cartNames);
+    res.render("./HTML/LandingPages/petfoodLandingPage.ejs", { notlogin, pets, rev, cartNames, cartPrices, cartSrc, cartType })
 })
 
 router.post("/reviewform", async (req, res) => {

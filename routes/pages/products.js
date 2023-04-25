@@ -22,23 +22,24 @@ router.get("/", async (req, res) => {
     let cartNames = []
     let cartSrc = []
     let cartPrices = []
+    let cartType = []
 
     if (!notlogin) {
         cartItems.userCart.forEach(element => {
-            if (element.productType === 'pets') {
-                console.log(element.productDetails);
-                cartNames.push(element.productDetails.title)
-                cartPrices.push(element.productDetails.price)
-                cartSrc.push(element.productDetails.src)
-            }
+            console.log(element.productDetails);
+            cartNames.push(element.productDetails.title)
+            cartPrices.push(element.productDetails.price)
+            cartSrc.push(element.productDetails.src)
+            cartType.push(element.productType)
         })
     }
     // cart end
     // accessories
     let accessories = await productSchema.find({ "productType": "accessories" }, { productType: 0, "productDetails._id": 0, _id: 0, __v: 0 })
     // console.log(accessories)
+    console.log(cartNames);
     accessories = JSON.stringify(accessories)
-    res.render("./HTML/LandingPages/productLandingPage.ejs", { notlogin, admin, cartNames, cartPrices, cartSrc, accessories })
+    res.render("./HTML/LandingPages/productLandingPage.ejs", { notlogin, admin, cartNames, cartPrices, cartSrc, cartType, accessories })
 })
 
 const productDetails = [
@@ -70,13 +71,14 @@ productSchema.insertMany(productDetails)
 router.post("/product", async (req, res) => {
     console.log("request made");
     console.log(req.body);
-    if (req.body.type === "add") {
-        const product = await productSchema.create({ productType: "Accessory", productDetails: { Name: req.body.title, price: req.body.price, src: req.body.imagSource } })
-        product.save()
-    }
-    else if (req.body.type === "remove") {
-        console.log(req.body);
-        await productSchema.findOneAndDelete({ productType: "Accessory", "productDetails.Name": req.body.title, "productDetails.price": req.body.price, "productDetails.src": req.body.imagSource.trim() })
+    if (req.session.userName) {
+        if (req.body.type === "add") {
+            await users.updateOne({ mailId: req.session.userMail }, { $push: { userCart: { productType: "accessories", productDetails: { title: req.body.title, price: req.body.price, src: req.body.imagSource, quantity: 0 } } } },)
+        }
+        else if (req.body.type === "remove") {
+            console.log(req.body);
+            await users.updateOne({ mailId: req.session.userMail }, { $pop: { userCart: { productType: "accessories", productDetails: { title: req.body.title, price: req.body.price, src: req.body.imagSource, quantity: 0 } } } },)
+        }
     }
     res.send([1, 2, 3])
 })

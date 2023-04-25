@@ -32,7 +32,7 @@ router.get("/", async (req, res) => {
     if (req.session.userName) {
         notlogin = false
     }
-    const pets = await petSchema.find({ "productType": "pet",petType: "cats" })
+    const pets = await petSchema.find({ "productType": "pet", petType: "cats" })
     console.log("in cats page");
     const cartItems = await users.findOne({ mailId: req.session.userMail }, { userCart: 1 })
     let pricesData = []
@@ -48,12 +48,12 @@ router.get("/", async (req, res) => {
     });
     if (!notlogin) {
         cartItems.userCart.forEach(element => {
-            if (element.productType === 'pets') {
-                console.log(element.productDetails);
-                cartNames.push(element.productDetails.title)
-                cartPrices.push(element.productDetails.price)
-                cartSrc.push(element.productDetails.src)
-            }
+            // if (element.productType === 'pets') {
+            console.log(element.productDetails);
+            cartNames.push(element.productDetails.title)
+            cartPrices.push(element.productDetails.price)
+            cartSrc.push(element.productDetails.src)
+            // }
         })
     }
     res.render("./HTML/LandingPages/catLandingPage.ejs", { notlogin, pricesData, productNamesData, imgsrcData, cartNames, cartPrices, cartSrc })

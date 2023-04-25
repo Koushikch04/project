@@ -5,25 +5,25 @@ const nameSchema = new mongoose.Schema({
 })
 
 const userSchema = new mongoose.Schema({
-    name: nameSchema, 
+    name: nameSchema,
     mailId: { type: String, trim: true },
-    password: String, 
+    password: String,
     userCart: [{
         productType: String,
         productDetails: {
             title: String,
             price: Number,
-            quantity: String,
-            src: String
+            quantity: Number,
+            src: { type: String }
         }
     }],
-    appointment:  [{
+    appointment: [{
         userName: String,
         package: String,
         number: String,
         date: String,
         time: String,
-        appointmentType : String,
+        appointmentType: String,
         status: String,
     }],
 })

@@ -43,12 +43,27 @@ router.post("/", async function (req, res) {
             let notlogin = false
             console.log(notlogin);
             admin = req.session.admin
-            res.render("./HTML/LandingPages/mainLandingPage", { error: true, message: "Login Successfull!", notlogin, admin })
+            const cartItems = await User.findOne({ mailId: req.session.userMail }, { userCart: 1 })
+            let cartNames = []
+            let cartSrc = []
+            let cartPrices = []
+            let cartType = []
+            cartItems.userCart.forEach(element => {
+                // if (element.productType === 'pets') {
+                console.log(element.productDetails);
+                cartNames.push(element.productDetails.title)
+                cartPrices.push(element.productDetails.price)
+                cartSrc.push(element.productDetails.src)
+                cartType.push(element.productType)
+                // }
+            })
+            res.render("./HTML/LandingPages/mainLandingPage", { error: true, message: "Login Successfull!", notlogin, admin, cartSrc, cartNames, cartPrices, cartType })
         }
         else {
             res.render("./HTML/Authentication/login", { error: true, message: "Incorrect Password!Please try again" })
         }
     }
+
     else {
         res.render("./HTML/Authentication/login", { error: true, message: "Invalid Mail!Please try again" })
     }
